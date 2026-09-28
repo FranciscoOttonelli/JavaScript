@@ -179,6 +179,28 @@ case "1":
 }
 mostrarStock(stock)
 
+class Producto {
+constructor(producto, precio, stock, modelo){
+    this.producto = producto;
+    this.precio = precio;
+    this.stock = stock;
+this.modelo = modelo;
+}
+actualizarStock(cantidad){
+    stock.push (this)
+this.stock += cantidad;
+
+}
+}
+const vitara = new Producto("Suzuki Vitara", 12000000, 6, 2021);
+vitara.actualizarStock(1);
+const a5 = new Producto("Audi A5", 200000, 1, 2013);
+a5.actualizarStock(3);
+const ka = new Producto("Ford Ka", 30000, 8, 2002);
+ka.actualizarStock(1);
+console.log(vitara);
+console.log(a5);
+console.log(ka)
 
 
 
