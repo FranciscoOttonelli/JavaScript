@@ -1,17 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modulo1</title>
-    <script defer src="js/main.js"></script>
-
+    <title>Ottonelli Cars</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="js/main.js" defer></script>
 </head>
-<h1>Preentrega del módulo 2</h1>
-
-
-
 <body>
-    
+    <header class="header">
+        <div class="logo">OTTONELLI <span>CARS</span></div>
+        <nav>
+            <a href="#inicio">Inicio</a>
+            <a href="#autos">Autos</a>
+            <a href="#accesorios">Accesorios</a>
+            <a href="#compras">Compras</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="inicio" class="hero">
+            <div class="hero-content">
+                <p class="eyebrow">CONCESIONARIA</p>
+                <h1>Ottonelli Cars</h1>
+                <p>Elegí tu próximo auto o accesorio.</p>
+                <a class="hero-button" href="#autos">Ver vehículos</a>
+            </div>
+        </section>
+
+        <section id="autos" class="section">
+            <div class="section-title">
+                <p class="eyebrow">VEHÍCULOS</p>
+                <h2>Autos disponibles</h2>
+            </div>
+            <div id="autos-container" class="cards-container"></div>
+        </section>
+
+        <section id="accesorios" class="section section-alt">
+            <div class="section-title">
+                <p class="eyebrow">PERSONALIZACIÓN</p>
+                <h2>Accesorios</h2>
+            </div>
+            <div id="accesorios-container" class="cards-container"></div>
+        </section>
+
+        <section id="compras" class="section compras-section">
+            <div class="section-title">
+                <p class="eyebrow">TU COMPRA</p>
+                <h2>Resumen</h2>
+            </div>
+
+            <div id="feedback" class="feedback">Todavía no realizaste ninguna compra.</div>
+
+            <div id="compras-container" class="compras-container"></div>
+
+            <div class="total-box">
+                <span>Total gastado</span>
+                <strong id="total">$0</strong>
+            </div>
+        </section>
+    </main>
+
+
 </body>
 </html>
