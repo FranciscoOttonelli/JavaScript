@@ -260,3 +260,63 @@ footer {
         padding: 60px 5%;
     }
 }
+
+/* Controles de carrito para la Pre-entrega 8 */
+.compra-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 16px;
+}
+
+.compra-item div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.compra-item small {
+    opacity: 0.7;
+}
+
+.delete-button,
+.clear-button {
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.delete-button {
+    background: #111;
+    color: #fff;
+}
+
+.clear-button {
+    background: #c43d3d;
+    color: #fff;
+}
+
+.delete-button:hover,
+.clear-button:hover {
+    opacity: 0.85;
+}
+
+.feedback.error {
+    border-color: #c43d3d;
+}
+
+.feedback.success {
+    border-color: #3d9b5f;
+}
+
+.empty-message {
+    opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+    .compra-item {
+        grid-template-columns: 1fr;
+    }
+}
