@@ -320,3 +320,29 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+
+/* Aviso asincrónico para la Pre-entrega 9 */
+.async-message {
+    max-width: 900px;
+    margin: 25px auto 0;
+    padding: 14px 18px;
+    border: 1px solid #d9b08c;
+    border-radius: 8px;
+    background: #fff8f1;
+    color: #4a3322;
+    opacity: 0.7;
+    transform: translateY(-4px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.async-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 650px) {
+    .async-message {
+        margin-left: 5%;
+        margin-right: 5%;
+    }
+}
