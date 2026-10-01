@@ -1,0 +1,74 @@
+[
+    {
+        "id": 1,
+        "nombre": "VW Gol",
+        "precio": 12000,
+        "stock": 1,
+        "modelo": 2010,
+        "tipo": "auto"
+    },
+    {
+        "id": 2,
+        "nombre": "Honda Civic",
+        "precio": 16000,
+        "stock": 1,
+        "modelo": 2012,
+        "tipo": "auto"
+    },
+    {
+        "id": 3,
+        "nombre": "BMW 430i",
+        "precio": 19700,
+        "stock": 1,
+        "modelo": 2018,
+        "tipo": "auto"
+    },
+    {
+        "id": 4,
+        "nombre": "Suzuki Vitara",
+        "precio": 12000,
+        "stock": 6,
+        "modelo": 2021,
+        "tipo": "auto"
+    },
+    {
+        "id": 5,
+        "nombre": "Audi A5",
+        "precio": 20000,
+        "stock": 1,
+        "modelo": 2013,
+        "tipo": "auto"
+    },
+    {
+        "id": 6,
+        "nombre": "Ford Ka",
+        "precio": 30000,
+        "stock": 8,
+        "modelo": 2002,
+        "tipo": "auto"
+    },
+    {
+        "id": 7,
+        "nombre": "Motor V12",
+        "precio": 8000,
+        "stock": 1,
+        "modelo": "V12",
+        "tipo": "accesorio"
+    },
+    {
+        "id": 8,
+        "nombre": "Suspensión",
+        "precio": 4000,
+        "stock": 1,
+        "modelo": "Neumática",
+        "tipo": "accesorio"
+    },
+    {
+        "id": 9,
+        "nombre": "Sticker",
+        "precio": 300,
+        "stock": 1,
+        "modelo": "Arcoíris",
+        "tipo": "accesorio"
+    }
+]

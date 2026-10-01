@@ -346,3 +346,28 @@ footer {
         margin-right: 5%;
     }
 }
+
+
+/* Estado de carga para la Pre-entrega 10 */
+.loading-message {
+    max-width: 900px;
+    margin: 25px auto 0;
+    padding: 14px 18px;
+    border: 1px solid #d9b08c;
+    border-radius: 8px;
+    background: #fff8f1;
+    color: #4a3322;
+    text-align: center;
+    font-weight: 600;
+}
+
+.loading-message.finished {
+    opacity: 0.9;
+}
+
+@media (max-width: 650px) {
+    .loading-message {
+        margin-left: 5%;
+        margin-right: 5%;
+    }
+}

@@ -1,9 +1,10 @@
 class Producto {
-    constructor(producto, precio, stock, modelo) {
+    constructor(producto, precio, stock, modelo, tipo) {
         this.producto = producto;
         this.precio = precio;
         this.stock = stock;
         this.modelo = modelo;
+        this.tipo = tipo;
     }
 
     actualizarStock(cantidad) {
@@ -11,59 +12,19 @@ class Producto {
     }
 }
 
-// Productos base del simulador.
-const gol = new Producto("VW Gol", 12000, 1, 2010);
-const civic = new Producto("Honda Civic", 16000, 1, 2012);
-const bmw = new Producto("BMW 430i", 19700, 1, 2018);
-
-const v12 = new Producto("Motor V12", 8000, 1, "V12");
-const suspension = new Producto("Suspensión", 4000, 1, "Neumática");
-const sticker = new Producto("Sticker", 300, 1, "Arcoíris");
-
-const vitara = new Producto("Suzuki Vitara", 12000, 6, 2021);
-const a5 = new Producto("Audi A5", 20000, 1, 2013);
-const ka = new Producto("Ford Ka", 30000, 8, 2002);
-
-const autos = [gol, civic, bmw, vitara, a5, ka];
-const accesorios = [v12, suspension, sticker];
-const productos = [...autos, ...accesorios];
-
-// ---------------- LOCAL STORAGE ----------------
-
 const STORAGE_KEY = "ottonelliCarsState";
 
-// JSON.parse + ?? para recuperar el estado guardado o empezar vacío.
 const estadoGuardado = JSON.parse(
     localStorage.getItem(STORAGE_KEY) ?? "{}"
 );
 
-// El carrito se recupera al abrir/refrescar la página.
-const compras = estadoGuardado.compras ?? [];
+let compras = estadoGuardado.compras ?? [];
 
-// Recuperamos también el stock actualizado.
 const stockGuardado = estadoGuardado.stock ?? {};
 
-productos.forEach(producto => {
-    producto.stock =
-        stockGuardado[producto.producto] ?? producto.stock;
-});
-
-function guardarEstado() {
-    const estado = {
-        compras,
-        stock: productos.reduce((acc, producto) => {
-            acc[producto.producto] = producto.stock;
-            return acc;
-        }, {})
-    };
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(estado)
-    );
-}
-
-// ---------------- DOM ----------------
+let productos = [];
+let autos = [];
+let accesorios = [];
 
 const autosContainer =
     document.getElementById("autos-container");
@@ -83,30 +44,136 @@ const feedback =
 const vaciarCarrito =
     document.getElementById("vaciar-carrito");
 
+const loadingMessage =
+    document.getElementById("loading-message");
+
 const asyncMessage =
     document.getElementById("async-message");
 
-// ---------------- TEMPORIZADOR ----------------
+function mostrarToast(mensaje, correcto = true) {
+    Toastify({
+        text: mensaje,
+        duration: 3500,
+        gravity: "top",
+        position: "right",
+        close: true,
+        style: {
+            background: correcto
+                ? "#3d9b5f"
+                : "#c43d3d"
+        }
+    }).showToast();
+}
 
-// Después de 3 segundos mostramos información
-// complementaria del simulador.
 setTimeout(() => {
-
     asyncMessage.textContent =
         "🔔 Recordatorio: tu presupuesto máximo para las compras es de $20.000. ¡Revisá el stock disponible!";
 
     asyncMessage.classList.add("show");
-
 }, 3000);
 
-// ---------------- RENDER ----------------
+async function cargarProductos() {
+    loadingMessage.textContent =
+        "⏳ Cargando vehículos y accesorios...";
 
-function renderProductos(lista, contenedor) {
+    try {
+        const respuesta =
+            await fetch("./data.json");
 
-    contenedor.innerHTML = lista
-        .map(producto => {
+        if (!respuesta.ok) {
+            throw new Error(
+                `Error HTTP: ${respuesta.status}`
+            );
+        }
 
-            // Destructuring de los datos del producto.
+        const datos =
+            await respuesta.json();
+
+        productos = datos.map(item => {
+            const producto = new Producto(
+                item.nombre,
+                item.precio,
+                item.stock,
+                item.modelo,
+                item.tipo
+            );
+
+            producto.stock =
+                stockGuardado[
+                    producto.producto
+                ] ?? producto.stock;
+
+            return producto;
+        });
+
+        autos = productos.filter(
+            producto =>
+                producto.tipo === "auto"
+        );
+
+        accesorios = productos.filter(
+            producto =>
+                producto.tipo === "accesorio"
+        );
+
+        renderTodo();
+
+        loadingMessage.textContent =
+            "✅ Productos cargados correctamente.";
+
+        mostrarToast(
+            "✅ Productos cargados con éxito.",
+            true
+        );
+
+    } catch (error) {
+        console.error(
+            "Error al cargar los productos:",
+            error
+        );
+
+        loadingMessage.textContent =
+            "❌ No se pudieron cargar los productos. Revisá la conexión o el archivo data.json.";
+
+        mostrarToast(
+            "❌ No se pudieron cargar los productos.",
+            false
+        );
+
+    } finally {
+        loadingMessage.classList.add(
+            "finished"
+        );
+    }
+}
+
+function guardarEstado() {
+    const estado = {
+        compras,
+        stock: productos.reduce(
+            (acc, producto) => {
+                acc[producto.producto] =
+                    producto.stock;
+
+                return acc;
+            },
+            {}
+        )
+    };
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(estado)
+    );
+}
+
+function renderProductos(
+    lista,
+    contenedor
+) {
+    contenedor.innerHTML =
+        lista.map(producto => {
+
             const {
                 producto: nombre,
                 precio,
@@ -151,31 +218,28 @@ function renderProductos(lista, contenedor) {
                             data-producto="${nombre}"
                             ${stock <= 0 ? "disabled" : ""}
                         >
-                            ${stock > 0 ? "Comprar" : "Sin stock"}
+                            ${stock > 0
+                                ? "Comprar"
+                                : "Sin stock"}
                         </button>
 
                     </div>
 
                 </article>
             `;
-        })
-        .join("");
+        }).join("");
 }
 
 function renderCompras() {
-
-    // Destructuring de cada objeto guardado en el carrito.
     comprasContainer.innerHTML =
         compras.length === 0
-
             ? `
                 <p class="empty-message">
                     Todavía no realizaste ninguna compra.
                 </p>
             `
-
-            : compras
-                .map((compra, indice) => {
+            : compras.map(
+                (compra, indice) => {
 
                     const {
                         producto,
@@ -211,21 +275,21 @@ function renderCompras() {
 
                         </div>
                     `;
-                })
-                .join("");
+                }
+            ).join("");
 
-    const total = compras.reduce(
-        (acc, compra) =>
-            acc + compra.precio,
-        0
-    );
+    const total =
+        compras.reduce(
+            (acc, compra) =>
+                acc + compra.precio,
+            0
+        );
 
     totalElemento.textContent =
         `$${total.toLocaleString("es-AR")}`;
 }
 
 function renderTodo() {
-
     renderProductos(
         autos,
         autosContainer
@@ -239,14 +303,12 @@ function renderTodo() {
     renderCompras();
 }
 
-// ---------------- FEEDBACK ----------------
-
 function mostrarFeedback(
     mensaje,
     correcto = true
 ) {
-
-    feedback.textContent = mensaje;
+    feedback.textContent =
+        mensaje;
 
     feedback.classList.toggle(
         "success",
@@ -259,20 +321,16 @@ function mostrarFeedback(
     );
 }
 
-// ---------------- COMPRAR ----------------
-
 function comprarProducto(producto) {
-
     const presupuesto = 20000;
 
-    const totalGastado = compras.reduce(
-        (acc, compra) =>
-            acc + compra.precio,
-        0
-    );
+    const totalGastado =
+        compras.reduce(
+            (acc, compra) =>
+                acc + compra.precio,
+            0
+        );
 
-    // Guardamos los valores anteriores para
-    // poder revertir la operación si algo falla.
     const stockAnterior =
         producto?.stock;
 
@@ -280,9 +338,6 @@ function comprarProducto(producto) {
         compras.length;
 
     try {
-
-        // Este error podría producirse si en el futuro
-        // llega un producto inexistente.
         if (!producto) {
             throw new Error(
                 "El producto no existe."
@@ -290,9 +345,8 @@ function comprarProducto(producto) {
         }
 
         if (producto.stock <= 0) {
-
-            mostrarFeedback(
-                `No hay stock disponible de ${producto.producto}.`,
+            mostrarToast(
+                `❌ No hay stock disponible de ${producto.producto}.`,
                 false
             );
 
@@ -300,20 +354,18 @@ function comprarProducto(producto) {
         }
 
         if (
-            totalGastado + producto.precio >
+            totalGastado +
+            producto.precio >
             presupuesto
         ) {
-
-            mostrarFeedback(
-                `No te alcanza para comprar ${producto.producto}.`,
+            mostrarToast(
+                `❌ No te alcanza para comprar ${producto.producto}.`,
                 false
             );
 
             return;
         }
 
-        // Guardamos una copia simple del objeto
-        // para poder serializarlo con JSON.
         compras.push({
             ...producto
         });
@@ -323,19 +375,21 @@ function comprarProducto(producto) {
         guardarEstado();
 
         mostrarFeedback(
-            `¡Compraste ${producto.producto}! Se guardó tu compra.`,
+            `¡Compraste ${producto.producto}!`,
+            true
+        );
+
+        mostrarToast(
+            `✅ Compra realizada: ${producto.producto}`,
             true
         );
 
     } catch (error) {
-
         console.error(
             "Error al procesar la compra:",
             error
         );
 
-        // Si la operación falla,
-        // restauramos el estado anterior.
         compras.splice(
             cantidadComprasAnterior
         );
@@ -350,23 +404,20 @@ function comprarProducto(producto) {
             false
         );
 
-    } finally {
+        mostrarToast(
+            "⚠️ No se pudo procesar la operación.",
+            false
+        );
 
-        // finally se ejecuta siempre,
-        // haya error o no.
+    } finally {
         renderTodo();
     }
 }
 
-// ---------------- ELIMINAR ----------------
-
 function eliminarCompra(indice) {
-
     const compra =
         compras[indice];
 
-    // ?. evita errores si por alguna razón
-    // la compra no existe.
     const producto =
         productos.find(
             item =>
@@ -393,14 +444,16 @@ function eliminarCompra(indice) {
         `Eliminaste ${compra.producto}. El stock volvió a actualizarse.`,
         true
     );
-}
 
-// ---------------- EVENTOS ----------------
+    mostrarToast(
+        `🗑️ Eliminaste ${compra.producto}.`,
+        true
+    );
+}
 
 autosContainer.addEventListener(
     "click",
     evento => {
-
         if (
             !evento.target.classList.contains(
                 "buy-button"
@@ -421,8 +474,8 @@ autosContainer.addEventListener(
 
         producto
             ? comprarProducto(producto)
-            : mostrarFeedback(
-                "No se encontró el producto.",
+            : mostrarToast(
+                "❌ No se encontró el producto.",
                 false
             );
     }
@@ -431,7 +484,6 @@ autosContainer.addEventListener(
 accesoriosContainer.addEventListener(
     "click",
     evento => {
-
         if (
             !evento.target.classList.contains(
                 "buy-button"
@@ -452,8 +504,8 @@ accesoriosContainer.addEventListener(
 
         producto
             ? comprarProducto(producto)
-            : mostrarFeedback(
-                "No se encontró el producto.",
+            : mostrarToast(
+                "❌ No se encontró el producto.",
                 false
             );
     }
@@ -462,7 +514,6 @@ accesoriosContainer.addEventListener(
 comprasContainer.addEventListener(
     "click",
     evento => {
-
         if (
             !evento.target.classList.contains(
                 "delete-button"
@@ -480,16 +531,12 @@ comprasContainer.addEventListener(
     }
 );
 
-// Vacía el carrito, actualiza stock,
-// Storage y DOM.
 vaciarCarrito.addEventListener(
     "click",
     () => {
-
         if (compras.length === 0) {
-
-            mostrarFeedback(
-                "El carrito ya está vacío.",
+            mostrarToast(
+                "⚠️ El carrito ya está vacío.",
                 false
             );
 
@@ -498,7 +545,6 @@ vaciarCarrito.addEventListener(
 
         compras.forEach(
             compra => {
-
                 const producto =
                     productos.find(
                         item =>
@@ -515,8 +561,6 @@ vaciarCarrito.addEventListener(
             compras.length
         );
 
-        // Borramos completamente
-        // el estado del Storage.
         localStorage.removeItem(
             STORAGE_KEY
         );
@@ -527,9 +571,12 @@ vaciarCarrito.addEventListener(
             "Carrito vacío. El stock fue restaurado.",
             true
         );
+
+        mostrarToast(
+            "🛒 Carrito vacío. Stock restaurado.",
+            true
+        );
     }
 );
 
-// Primer renderizado:
-// mantiene el estado recuperado del localStorage.
-renderTodo();
+cargarProductos();
